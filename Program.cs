@@ -95,7 +95,7 @@
                         }
                         break;
                     case 4:
-                        int highestAve = 0, studentAve = 0, s = 0;
+                        int highestAve = 0, s = 0;
                         string topStudent = "";
 
                         for (int i = 0; i < studentList.Count; i++)
