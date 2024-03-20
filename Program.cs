@@ -1,21 +1,48 @@
-﻿namespace topic_4_programming_csharp
+namespace topic_4_programming_csharp
 {
     internal class Program
     {
+        public class Student
+        {
+            public string Name { get; set; }
+            public Dictionary<string, double> Grades = new Dictionary<string, double>();
+
+            public Student (string name)
+            {
+                this.Name = name;
+            }
+
+            public void SetGrade(string subject, double grade)
+            {
+                Grades.Add(subject, grade);
+            }
+
+            public double GetGrade(string subject)
+            {
+                return Grades[subject];
+            }
+
+            public double CalculateAverageGrade()
+            {
+                double sum = 0;
+
+                foreach(KeyValuePair<string, double> grade in Grades)
+                    sum += grade.Value;
+
+                return sum/Grades.Count;
+            }
+        }
+
+        public enum Subjects { Science, English, Math };
         
         static void Main(string[] args)
         {
             Console.WriteLine($"Enter total students:");
             string? studentCount = Console.ReadLine();
-
             int studentCounter = 0;
+            if (studentCount is not null) studentCounter = Int32.Parse(studentCount);
 
-            bool studentCountIntegerCheck = int.TryParse(studentCount, out studentCounter);
-
-            if (!studentCountIntegerCheck) Console.WriteLine("Please enter a valid number.");
-
-            var studentList = new List<string>();
-            var studentGrades = new List<int[]>();
+            var students = new List<Student>();
 
             while (studentCounter != 0)
             {
@@ -49,68 +76,64 @@
                             Console.WriteLine("Enroll Student");
                             Console.WriteLine("Enter student name:");
                             string? studentName = Console.ReadLine();
-                            if (studentName is not null) studentList.Add(studentName);
+                            if (studentName is not null)
+                            {
+                                Student student = new Student(studentName);
+                                students.Add(student);
+                            }
 
                             attempts++;
 
                             Console.WriteLine("Enter again? [Y/N]:");
                             string? response = Console.ReadLine();
 
-                            Console.WriteLine($"Response: {response}");
-
                             if (response == "N" || response == "n") enterAgain = "N";
                         }
                         break;
                     case 2:
-                        string[] subjects = ["Science", "Math", "English"];
-
-                        foreach (var student in studentList)
+                        foreach (var student in students)
                         {
-                            int[] grades = new int[3];
                             Console.WriteLine($"Enter student Grades");
-                            Console.WriteLine($"Student: {student}");
+                            Console.WriteLine($"Student: {student.Name}");
 
-                            for(int i = 0; i < subjects.Length; i++) {
-                                Console.WriteLine($"Enter grade for {subjects[i]}:");
+                            foreach(var subject in Enum.GetNames(typeof(Subjects))) {
+                                Console.WriteLine($"Enter grade for {subject}:");
                                 string? answer = Console.ReadLine();
                                 int grade = 0;
                                 if (answer is not null) grade = Int32.Parse(answer);
-                                grades[i] = grade;
-                            }
 
-                            studentGrades.Add(grades);
+                                student.SetGrade(subject, grade);
+                            }
                         }
                         break;
                     case 3:
                         Console.WriteLine("Name\t\tScience\t\tMath\t\tEnglish\t\tAve.");
-                        for(int i = 0; i < studentList.Count; i++)
+                        foreach(var student in students)
                         {
-                            int sum = 0;
-                            foreach(int grade in studentGrades[i])
-                            {
-                                sum += grade;
-                            }
+                            string result = $"{student.Name}\t\t";
 
-                            Console.WriteLine($"{studentList[i]}\t\t  {studentGrades[i][0]}\t\t {studentGrades[i][1]}\t\t  {studentGrades[i][2]}\t\t {sum/3}");
+                            foreach(var subject in Enum.GetNames<Subjects>())
+                            {
+                                double grade = student.GetGrade(subject.ToString());
+                                result += $"{grade}\t\t";
+                            }
+                            result += student.CalculateAverageGrade();
+                            Console.WriteLine(result);
                         }
                         break;
                     case 4:
-                        int highestAve = 0, s = 0;
+                        double highestAverage = 0;
                         string topStudent = "";
 
-                        for (int i = 0; i < studentList.Count; i++)
+                        foreach(var student in students)
                         {
-                            foreach (int g in studentGrades[i])
+                            if (student.CalculateAverageGrade() > highestAverage)
                             {
-                                s += g;
-                            }
-
-                            if (s > highestAve)
-                            {
-                                highestAve = s;
-                                topStudent = studentList[i];
+                                highestAverage = student.CalculateAverageGrade();
+                                topStudent = student.Name;
                             }
                         }
+
                         Console.WriteLine($"Top student: {topStudent}");
                         break;
                 }
